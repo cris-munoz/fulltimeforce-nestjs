@@ -2,6 +2,10 @@ import { Injectable } from '@nestjs/common';
 // import { Octokit } from '@octokit/core';
 import { Octokit } from '@octokit/rest';
 
+interface CommitData {
+  branchName: string;
+  commits: [object?];
+}
 const REPO_COMMITS_URL =
   'https://api.github.com/repos/cris-munoz/fulltimeforce-nestjs/commits/dev';
 
@@ -36,20 +40,30 @@ export class AppService {
   async getRepoCommits(): Promise<any> {
     const octokit = new Octokit();
 
-    const requestParameters = {
-      owner: 'cris-munoz',
-      repo: 'fulltimeforce-nestjs',
-      sha: 'dev',
-    };
+    const branches = await this.getBranches();
     const commitsData = [];
 
-    const commitList = await octokit.repos.listCommits(requestParameters);
+    for (let i = 0; i < branches.length; i++) {
+      const { name } = branches[i];
+      const requestParameters = {
+        owner: 'cris-munoz',
+        repo: 'fulltimeforce-nestjs',
+        sha: name,
+      };
 
-    const { data } = commitList;
+      const commitList = await octokit.repos.listCommits(requestParameters);
 
-    data.forEach((element, index) => {
-      commitsData.push(element.commit);
-    });
+      const { data } = commitList;
+
+      const commitDataAux: CommitData = {
+        branchName: name,
+        commits: [],
+      };
+      data.forEach((element) => {
+        commitDataAux.commits.push(element.commit);
+      });
+      commitsData.push(commitDataAux);
+    }
 
     return commitsData;
   }
