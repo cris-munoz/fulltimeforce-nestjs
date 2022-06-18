@@ -1,10 +1,19 @@
 import { Injectable } from '@nestjs/common';
-// import { Octokit } from '@octokit/core';
 import { Octokit } from '@octokit/rest';
 
 interface CommitData {
   branchName: string;
   commits: [object?];
+}
+
+interface BranchResponse {
+  success: boolean;
+  message: string;
+  data: [BranchData?];
+}
+
+interface BranchData {
+  name: string;
 }
 
 // const USER = 'cris-munoz';
@@ -30,43 +39,62 @@ export class AppService {
       });
   }
 
-  async getBranches(user: string, repo: string): Promise<any> {
-    const octokit = new Octokit();
-    const { data } = await octokit.request(
-      `GET https://api.github.com/repos/${user}/${repo}/branches`,
-    );
+  async getBranches(user: string, repo: string): Promise<BranchResponse> {
+    try {
+      const octokit = new Octokit();
+      const { data } = await octokit.request(
+        `GET https://api.github.com/repos/${user}/${repo}/branches`,
+      );
 
-    return data;
+      if (!data) {
+        return { success: false, message: 'failed to get branches', data: [] };
+      }
+      return {
+        success: true,
+        message: 'operation successfully completed',
+        data,
+      };
+    } catch (err) {
+      return { success: false, message: err.message, data: [] };
+    }
   }
 
-  async getRepoCommits(user: string, repo: string): Promise<any> {
-    const octokit = new Octokit();
+  async getRepoCommits(user: string, repo: string): Promise<[CommitData?]> {
+    try {
+      const octokit = new Octokit();
 
-    const branches = await this.getBranches(user, repo);
-    const commitsData = [];
+      const branches = await this.getBranches(user, repo);
 
-    for (let i = 0; i < branches.length; i++) {
-      const { name } = branches[i];
-      const requestParameters = {
-        owner: user,
-        repo,
-        sha: name,
-      };
+      if (!branches.success) throw new Error(branches.message);
 
-      const commitList = await octokit.repos.listCommits(requestParameters);
+      const commitsData: [CommitData?] = [];
 
-      const { data } = commitList;
+      const { data: branchData } = branches;
+      for (let i = 0; i < branchData.length; i++) {
+        const name = branchData[i].name;
+        const requestParameters = {
+          owner: user,
+          repo,
+          sha: name,
+        };
 
-      const commitDataAux: CommitData = {
-        branchName: name,
-        commits: [],
-      };
-      data.forEach((element) => {
-        commitDataAux.commits.push(element.commit);
-      });
-      commitsData.push(commitDataAux);
+        const commitList = await octokit.repos.listCommits(requestParameters);
+
+        const { data } = commitList;
+
+        const commitDataAux: CommitData = {
+          branchName: name,
+          commits: [],
+        };
+        data.forEach((element) => {
+          commitDataAux.commits.push(element.commit);
+        });
+        commitsData.push(commitDataAux);
+      }
+
+      return commitsData;
+    } catch (err) {
+      return err.stack;
     }
-
-    return commitsData;
   }
 }
