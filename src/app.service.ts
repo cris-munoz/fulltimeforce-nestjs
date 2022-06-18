@@ -4,6 +4,9 @@ import { Octokit } from '@octokit/core';
 const REPO_COMMITS_URL =
   'https://api.github.com/repos/cris-munoz/fulltimeforce-nestjs/commits';
 
+const REPO_BRANCHES_URL =
+  'https://api.github.com/repos/cris-munoz/fulltimeforce-nestjs/branches';
+
 @Injectable()
 export class AppService {
   getRepoCommitsV0(): any {
@@ -21,9 +24,23 @@ export class AppService {
         return formatResponse.toString();
       });
   }
+
+  async getBranches(): Promise<any> {
+    const octokit = new Octokit();
+    const { data } = await octokit.request(`GET ${REPO_BRANCHES_URL}`);
+
+    return data;
+  }
+
   async getRepoCommits(): Promise<any> {
     const octokit = new Octokit();
     const { data } = await octokit.request(`GET ${REPO_COMMITS_URL}`);
+
+    const branches = await this.getBranches();
+    console.log(
+      '🚀 ~ file: app.service.ts ~ line 40 ~ AppService ~ getRepoCommits ~ branches',
+      branches,
+    );
 
     const formatResponse = [];
     data.forEach((res, index) => {
