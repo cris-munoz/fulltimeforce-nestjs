@@ -48,8 +48,8 @@ export class AppService {
     for (let i = 0; i < branches.length; i++) {
       const { name } = branches[i];
       const requestParameters = {
-        owner: process.env.USER,
-        repo: process.env.REPO,
+        owner: user,
+        repo,
         sha: name,
       };
 
