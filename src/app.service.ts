@@ -49,6 +49,10 @@ export class AppService {
       const { data } = await octokit.request(
         `GET https://api.github.com/repos/${user}/${repo}/branches`,
       );
+      console.log(
+        '🚀 ~ file: app.service.ts ~ line 50 ~ AppService ~ getBranches ~ data',
+        data,
+      );
 
       if (!data) {
         return { success: false, message: 'failed to get branches', data: [] };
@@ -59,6 +63,7 @@ export class AppService {
         data,
       };
     } catch (err) {
+      console.log('aca!!!!');
       return { success: false, message: err.message, data: [] };
     }
   }
@@ -68,10 +73,18 @@ export class AppService {
    * @param {string=} repo - name of the github repository.
    */
   async getRepoCommits(user: string, repo: string): Promise<[CommitData?]> {
+    console.log(
+      '🚀 ~ file: app.service.ts ~ line 71 ~ AppService ~ getRepoCommits ~ user',
+      user,
+    );
     try {
       const octokit = new Octokit();
 
       const branches = await this.getBranches(user, repo); // get all branches from repo
+      console.log(
+        '🚀 ~ file: app.service.ts ~ line 75 ~ AppService ~ getRepoCommits ~ branches',
+        branches,
+      );
 
       if (!branches.success) throw new Error(branches.message);
 
