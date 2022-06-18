@@ -1,8 +1,9 @@
 import { Injectable } from '@nestjs/common';
-import { Octokit } from '@octokit/core';
+// import { Octokit } from '@octokit/core';
+import { Octokit } from '@octokit/rest';
 
 const REPO_COMMITS_URL =
-  'https://api.github.com/repos/cris-munoz/fulltimeforce-nestjs/commits';
+  'https://api.github.com/repos/cris-munoz/fulltimeforce-nestjs/commits/dev';
 
 const REPO_BRANCHES_URL =
   'https://api.github.com/repos/cris-munoz/fulltimeforce-nestjs/branches';
@@ -34,22 +35,22 @@ export class AppService {
 
   async getRepoCommits(): Promise<any> {
     const octokit = new Octokit();
-    const { data } = await octokit.request(`GET ${REPO_COMMITS_URL}`);
 
-    const branches = await this.getBranches();
-    console.log(
-      '🚀 ~ file: app.service.ts ~ line 40 ~ AppService ~ getRepoCommits ~ branches',
-      branches,
-    );
+    const requestParameters = {
+      owner: 'cris-munoz',
+      repo: 'fulltimeforce-nestjs',
+      sha: 'dev',
+    };
+    const commitsData = [];
 
-    const formatResponse = [];
-    data.forEach((res, index) => {
-      const isEven = index % 2 === 1;
-      const commit = `<p style="color:${
-        isEven ? '#FF0000' : '#00FF00'
-      }";>${JSON.stringify(res.commit)}</p>`;
-      formatResponse.push(commit);
+    const commitList = await octokit.repos.listCommits(requestParameters);
+
+    const { data } = commitList;
+
+    data.forEach((element, index) => {
+      commitsData.push(element.commit);
     });
-    return formatResponse.toString();
+
+    return commitsData;
   }
 }
