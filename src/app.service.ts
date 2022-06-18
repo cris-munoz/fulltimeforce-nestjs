@@ -39,9 +39,13 @@ export class AppService {
       });
   }
 
+  /** get all branches from the specified repository (https://api.github.com/repos/${user}/${repo})
+   * @param {string=} user - username of the github account.
+   * @param {string=} repo - name of the github repository.
+   */
   async getBranches(user: string, repo: string): Promise<BranchResponse> {
     try {
-      const octokit = new Octokit();
+      const octokit = new Octokit(); // instantiate the client without auth, since is a public repo
       const { data } = await octokit.request(
         `GET https://api.github.com/repos/${user}/${repo}/branches`,
       );
@@ -59,37 +63,44 @@ export class AppService {
     }
   }
 
+  /** get all the commits from the specified repository (https://api.github.com/repos/${user}/${repo})
+   * @param {string=} user - username of the github account.
+   * @param {string=} repo - name of the github repository.
+   */
   async getRepoCommits(user: string, repo: string): Promise<[CommitData?]> {
     try {
       const octokit = new Octokit();
 
-      const branches = await this.getBranches(user, repo);
+      const branches = await this.getBranches(user, repo); // get all branches from repo
 
       if (!branches.success) throw new Error(branches.message);
 
-      const commitsData: [CommitData?] = [];
+      const commitsData: [CommitData?] = []; // initialize array to store commits data
 
       const { data: branchData } = branches;
       for (let i = 0; i < branchData.length; i++) {
-        const name = branchData[i].name;
+        //iterate through all branches to find commits data
+        const { name } = branchData[i];
         const requestParameters = {
           owner: user,
           repo,
           sha: name,
         };
 
-        const commitList = await octokit.repos.listCommits(requestParameters);
+        const commitList = await octokit.repos.listCommits(requestParameters); //get all commits from current branch
 
         const { data } = commitList;
 
         const commitDataAux: CommitData = {
+          // add the name of the current branch
           branchName: name,
           commits: [],
         };
         data.forEach((element) => {
+          // add every commit to commits array
           commitDataAux.commits.push(element.commit);
         });
-        commitsData.push(commitDataAux);
+        commitsData.push(commitDataAux); // add the newly created object to response array
       }
 
       return commitsData;
