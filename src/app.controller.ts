@@ -7,6 +7,6 @@ export class AppController {
 
   @Get()
   async getRepoCommits(): Promise<string> {
-    return this.appService.getRepoCommits();
+    return this.appService.getRepoCommits(process.env.USER, process.env.REPO);
   }
 }

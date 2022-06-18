@@ -6,16 +6,16 @@ interface CommitData {
   branchName: string;
   commits: [object?];
 }
-const REPO_COMMITS_URL =
-  'https://api.github.com/repos/cris-munoz/fulltimeforce-nestjs/commits/dev';
 
-const REPO_BRANCHES_URL =
-  'https://api.github.com/repos/cris-munoz/fulltimeforce-nestjs/branches';
+// const USER = 'cris-munoz';
+// const REPO = 'fulltimeforce-nestjs';
 
 @Injectable()
 export class AppService {
   getRepoCommitsV0(): any {
-    return fetch(REPO_COMMITS_URL)
+    return fetch(
+      'https://api.github.com/repos/cris-munoz/fulltimeforce-nestjs/commits/dev',
+    )
       .then((response) => response.json())
       .then((response) => {
         const formatResponse = [];
@@ -30,24 +30,26 @@ export class AppService {
       });
   }
 
-  async getBranches(): Promise<any> {
+  async getBranches(user: string, repo: string): Promise<any> {
     const octokit = new Octokit();
-    const { data } = await octokit.request(`GET ${REPO_BRANCHES_URL}`);
+    const { data } = await octokit.request(
+      `GET https://api.github.com/repos/${user}/${repo}/branches`,
+    );
 
     return data;
   }
 
-  async getRepoCommits(): Promise<any> {
+  async getRepoCommits(user: string, repo: string): Promise<any> {
     const octokit = new Octokit();
 
-    const branches = await this.getBranches();
+    const branches = await this.getBranches(user, repo);
     const commitsData = [];
 
     for (let i = 0; i < branches.length; i++) {
       const { name } = branches[i];
       const requestParameters = {
-        owner: 'cris-munoz',
-        repo: 'fulltimeforce-nestjs',
+        owner: process.env.USER,
+        repo: process.env.REPO,
         sha: name,
       };
 
