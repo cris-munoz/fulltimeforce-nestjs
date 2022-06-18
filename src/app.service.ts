@@ -56,7 +56,6 @@ export class AppService {
         data,
       };
     } catch (err) {
-      console.log('aca!!!!');
       return { success: false, message: err.message, data: [] };
     }
   }
