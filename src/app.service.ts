@@ -44,7 +44,7 @@ export class AppService {
    */
   async getBranches(user: string, repo: string): Promise<BranchResponse> {
     try {
-      const octokit = new Octokit(); // instantiate the client without auth, since is a public repo
+      const octokit = new Octokit({ auth: process.env.AUTH_TOKEN });
       const { data } = await octokit.request(
         `GET https://api.github.com/repos/${user}/${repo}/branches`,
       );
@@ -68,7 +68,7 @@ export class AppService {
    */
   async getRepoCommits(user: string, repo: string): Promise<[Commit?]> {
     try {
-      const octokit = new Octokit();
+      const octokit = new Octokit({ auth: process.env.AUTH_TOKEN });
 
       const branches = await this.getBranches(user, repo); // get all branches from repo
 
