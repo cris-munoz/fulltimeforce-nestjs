@@ -1,9 +1,11 @@
 import { Injectable } from '@nestjs/common';
 import { Octokit } from '@octokit/rest';
 
-interface CommitData {
+interface Commit {
   branchName: string;
-  commits: [object?];
+  author: string;
+  date: string;
+  message: string;
 }
 
 interface BranchResponse {
@@ -64,7 +66,7 @@ export class AppService {
    * @param {string=} user - username of the github account.
    * @param {string=} repo - name of the github repository.
    */
-  async getRepoCommits(user: string, repo: string): Promise<[CommitData?]> {
+  async getRepoCommits(user: string, repo: string): Promise<[Commit?]> {
     try {
       const octokit = new Octokit();
 
@@ -72,7 +74,7 @@ export class AppService {
 
       if (!branches.success) throw new Error(branches.message);
 
-      const commitsData: [CommitData?] = []; // initialize array to store commits data
+      const commitArray: [Commit?] = []; // initialize array to store commits data
 
       const { data: branchData } = branches;
       for (let i = 0; i < branchData.length; i++) {
@@ -88,19 +90,19 @@ export class AppService {
 
         const { data } = commitList;
 
-        const commitDataAux: CommitData = {
-          // add the name of the current branch
-          branchName: name,
-          commits: [],
-        };
         data.forEach((element) => {
           // add every commit to commits array
-          commitDataAux.commits.push(element.commit);
+          const commitData: Commit = {
+            branchName: name,
+            date: element.commit.committer.date,
+            author: element.commit.committer.name,
+            message: element.commit.message,
+          };
+          commitArray.push(commitData); // add the newly created object to response array
         });
-        commitsData.push(commitDataAux); // add the newly created object to response array
       }
 
-      return commitsData;
+      return commitArray;
     } catch (err) {
       return err.stack;
     }
