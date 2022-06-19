@@ -12,6 +12,10 @@ export class AppController {
       process.env.GIT_REPO,
     );
 
-    return { githubData };
+    return {
+      githubData,
+      repo: process.env.GIT_REPO,
+      user: process.env.GIT_USER,
+    };
   }
 }
