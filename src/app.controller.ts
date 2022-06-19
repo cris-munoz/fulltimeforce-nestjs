@@ -11,6 +11,7 @@ export class AppController {
       process.env.GIT_USER,
       process.env.GIT_REPO,
     );
-    return { githubData: JSON.stringify(githubData) };
+
+    return { githubData };
   }
 }

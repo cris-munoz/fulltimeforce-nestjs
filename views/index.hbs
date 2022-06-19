@@ -5,6 +5,22 @@
     <title>App</title>
   </head>
   <body>
-    {{githubData}}
+    <table cellspacing="">
+      <thead>
+        <th>Branch</th>
+        <th>Date</th>
+        <th>Author</th>
+        <th>Message</th>
+      </thead>
+      <tbody>
+    {{#each githubData}}
+    <tr>
+      {{#each this}}
+        <td>{{this}}</td>
+      {{/each}}
+    </tr>
+  {{/each}}
+      </tbody>
+    </table>
   </body>
 </html>
