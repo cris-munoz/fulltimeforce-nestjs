@@ -18,6 +18,21 @@ interface BranchData {
   name: string;
 }
 
+class MyOctokit {
+  static instance: Octokit;
+
+  private constructor() {
+    console.log('constructor not implemented!');
+  }
+
+  public static getInstance(): Octokit {
+    if (!MyOctokit.instance) {
+      MyOctokit.instance = new Octokit({ auth: process.env.AUTH_TOKEN });
+    }
+    return MyOctokit.instance;
+  }
+}
+
 @Injectable()
 export class AppService {
   getRepoCommitsV0(): any {
@@ -44,7 +59,7 @@ export class AppService {
    */
   async getBranches(user: string, repo: string): Promise<BranchResponse> {
     try {
-      const octokit = new Octokit({ auth: process.env.AUTH_TOKEN });
+      const octokit = MyOctokit.getInstance();
       const { data } = await octokit.request(
         `GET https://api.github.com/repos/${user}/${repo}/branches`,
       );
@@ -68,7 +83,7 @@ export class AppService {
    */
   async getRepoCommits(user: string, repo: string): Promise<[Commit?]> {
     try {
-      const octokit = new Octokit({ auth: process.env.AUTH_TOKEN });
+      const octokit = MyOctokit.getInstance();
 
       const branches = await this.getBranches(user, repo); // get all branches from repo
 
