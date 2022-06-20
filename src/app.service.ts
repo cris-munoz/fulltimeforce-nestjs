@@ -93,7 +93,7 @@ export class AppService {
           const commitData: Commit = {
             branchName: name,
             date: moment(element.commit.committer.date).format(
-              'DD-MM-YYYY hh:mm',
+              'DD-MM-YYYY HH:mm',
             ),
             author: element.commit.committer.name,
             message: element.commit.message,
