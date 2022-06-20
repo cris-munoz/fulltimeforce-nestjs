@@ -36,24 +36,6 @@ class MyOctokit {
 
 @Injectable()
 export class AppService {
-  getRepoCommitsV0(): any {
-    return fetch(
-      'https://api.github.com/repos/cris-munoz/fulltimeforce-nestjs/commits/dev',
-    )
-      .then((response) => response.json())
-      .then((response) => {
-        const formatResponse = [];
-        response.forEach((res, index) => {
-          const isEven = index % 2 === 1;
-          const commit = `aaa<p style="color:${
-            isEven ? '#FF0000' : '#00FF00'
-          }";>${JSON.stringify(res.commit)}</p>`;
-          formatResponse.push(commit);
-        });
-        return formatResponse.toString();
-      });
-  }
-
   /** get all branches from the specified repository (https://api.github.com/repos/${user}/${repo})
    * @param {string=} user - username of the github account.
    * @param {string=} repo - name of the github repository.
