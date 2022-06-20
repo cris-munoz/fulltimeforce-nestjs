@@ -1,5 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { Octokit } from '@octokit/rest';
+import * as moment from 'moment';
 
 interface Commit {
   branchName: string;
@@ -109,7 +110,9 @@ export class AppService {
           // add every commit to commits array
           const commitData: Commit = {
             branchName: name,
-            date: element.commit.committer.date,
+            date: moment(element.commit.committer.date).format(
+              'DD-MM-YYYY hh:mm',
+            ),
             author: element.commit.committer.name,
             message: element.commit.message,
           };
